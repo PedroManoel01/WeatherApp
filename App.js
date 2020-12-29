@@ -3,7 +3,6 @@ import { StyleSheet, Text, View, PermissionsAndroid, Button, Platform } from "re
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 
-import DetailsScreen from './src/Screens/DetailsScreen';
 import HomeScreen from './src/Screens/HomeScreen';
 import Map from './src/Screens/Map';
 
@@ -12,7 +11,7 @@ const Stack = createStackNavigator();
 function App() {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Home">
+      <Stack.Navigator initialRouteName="HomeScreen">
         <Stack.Screen name="HomeScreen" component={HomeScreen}
           options={{headerShown: false}}/>
         <Stack.Screen name="Map" component = {Map}
