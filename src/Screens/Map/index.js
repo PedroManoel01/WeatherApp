@@ -64,6 +64,7 @@ export default function Map({route :{params}}) {
       setInfo({
         name:results.name,
         temp:results.main.temp,
+        humidity:results.main.humidity
       })
     })
   }
@@ -122,11 +123,9 @@ const setItems = () => {
       }} />
         </MapView>
         <View style={styles.button}>
-        //Recebe a localização atual do usuario
           <Button title='Obter Localização' onPress={callLocation}/>
         </View>
         <View style = {styles.button}>
-          //Recebe as variaveis do clima do local selecionado
           <Button title='Recebe o clima do local selecionado' onPress={getWeather}/>
         </View>
         <View style={styles.text}>
@@ -138,7 +137,6 @@ const setItems = () => {
           </Text>
         </View>
         <View style={styles.texto}>
-        //Nome que vai ser adicionado aos favoritos
           <TextInput
           value={text}
           onChangeText={(event) =>

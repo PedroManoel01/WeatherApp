@@ -38,7 +38,6 @@ const verify = async () => {
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
       <Text>Home Screen</Text>
-      //Vai para onde está o mapa
       <Button title = "Go to Map" onPress ={() => {navigation.navigate('Map',{dados:localData})
       console.log(localData)}}/>
       <Button title = 'Recebe as variáveis'
