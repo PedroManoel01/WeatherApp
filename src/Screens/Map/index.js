@@ -10,10 +10,6 @@ export default function Map({route :{params}}) {
     latitude: 0,
     longitude: 0,
   });
-  const [info,setInfo]= useState({
-    temp:"loading",
-    humidity:"loading",
-    })
    const [text, setText] = useState('');
    const navigation = useNavigation()
 //Solicita acesso pra pegar a localização atual
@@ -54,24 +50,9 @@ export default function Map({route :{params}}) {
   useEffect(()=>{
       getLocation()
   },[])
-  //Consulta a Api e checa o clima
-  const  getWeather = () =>{
-    var latitude = coordinate.latitude.toString()
-    var longitude = coordinate.longitude.toString()
-    fetch('https://api.openweathermap.org/data/2.5/weather?lat='+latitude+'&lon='+longitude+'&appid=075113093f20a219f26575c36cc4a929&units=metric')
-    .then(data=>data.json())
-    .then(results=>{
-      setInfo({
-        name:results.name,
-        temp:results.main.temp,
-        humidity:results.main.humidity
-      })
-    })
-  }
 //Salva as variaveis que irão retornar pra tela inicial
 const setItems = () => {
-      const data = [];
-      data.unshift(params.dados)
+      const data = params.dados;
       data.unshift({
         id:text,
         latitude:coordinate.latitude,
@@ -111,7 +92,6 @@ const setItems = () => {
               latitude:results.nativeEvent.coordinate.latitude,
               longitude:results.nativeEvent.coordinate.longitude,
             });
-            getWeather();
           }
         )}
       >
@@ -124,17 +104,6 @@ const setItems = () => {
         </MapView>
         <View style={styles.button}>
           <Button title='Obter Localização' onPress={callLocation}/>
-        </View>
-        <View style = {styles.button}>
-          <Button title='Recebe o clima do local selecionado' onPress={getWeather}/>
-        </View>
-        <View style={styles.text}>
-          <Text>
-            Temperatura: {info.temp}
-          </Text>
-          <Text>
-            Humidade: {info.humidity}
-          </Text>
         </View>
         <View style={styles.texto}>
           <TextInput
