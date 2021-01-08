@@ -1,10 +1,10 @@
 import React, { useState,useEffect } from "react";
-import { StyleSheet, Text, View, PermissionsAndroid, Button, Platform } from "react-native";
+import { StyleSheet, Text, View, PermissionsAndroid,Platform } from "react-native";
 import Geolocation from '@react-native-community/geolocation';
 import MapView,{Marker} from 'react-native-maps';
 import {useNavigation} from '@react-navigation/native';
 import AsyncStorage from '@react-native-community/async-storage'
-import {TextInput} from 'react-native-paper'
+import {TextInput,Button} from 'react-native-paper'
 
 export default function Map({route :{params}}) {
   const [coordinate, setCoordinate] = useState({
@@ -13,6 +13,7 @@ export default function Map({route :{params}}) {
   });
    const [text, setText] = useState('');
    const navigation = useNavigation()
+  const data = params.dados;
 //Solicita acesso pra pegar a localização atual
   const callLocation = () => {
       const requestLocationPermission = async () => {
@@ -53,7 +54,7 @@ export default function Map({route :{params}}) {
   },[])
 //Salva as variaveis que irão retornar pra tela inicial
 const setItems = () => {
-      const data = params.dados;
+
       data.unshift({
         id:text,
         latitude:coordinate.latitude,
@@ -79,7 +80,8 @@ const setItems = () => {
     return (
 
       <View style={styles.container}>
-
+      <Text style ={styles.text}>Escolha entre usar sua localização</Text>
+      <Text style ={styles.text}>ou selecione um lugar no mapa</Text>
         <MapView
           style={styles.map}
           region={{
@@ -103,9 +105,7 @@ const setItems = () => {
         longitudeDelta:5,
       }} />
         </MapView>
-        <View style={styles.button}>
-          <Button title='Obter Localização' onPress={callLocation}/>
-        </View>
+
         <View style={styles.textoEntrada}>
           <TextInput
           value={text}
@@ -118,10 +118,11 @@ const setItems = () => {
           />
         </View>
         <View style = {styles.button}>
-          <Button title='Salvar' onPress ={() => {
+          <Button onPress={callLocation}>Usar localização atual</Button>
+          <Button onPress ={() => {
             setItems();
             navigation.goBack()
-          }}/>
+          }}>Salvar</Button>
         </View>
       </View>
 
@@ -138,7 +139,7 @@ const styles = StyleSheet.create({
   map: {
 
     position: 'absolute',
-    top: 200,
+    top: 250,
     left: 0,
     right: 0,
     bottom: 0,
@@ -150,6 +151,10 @@ const styles = StyleSheet.create({
     right:100,},
   textoEntrada: {
 
+  },
+  text:{
+    fontSize: 20,
+    marginLeft: 40
   }
 
 });

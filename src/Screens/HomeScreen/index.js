@@ -1,5 +1,5 @@
 import React,{useState,useEffect} from "react";
-import { StyleSheet, Text, View, PermissionsAndroid, Platform,FlatList,TouchableHighlight,Modal} from "react-native";
+import { StyleSheet, Text, View, PermissionsAndroid, Platform,FlatList,ScrollView,Modal} from "react-native";
 import { NavigationContainer,useNavigation } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import AsyncStorage from '@react-native-community/async-storage'
@@ -11,8 +11,8 @@ const [modalVisibility,setModalVisibility]= useState(false)
 const [editedText,setEditedText]= useState('')
 const [editedItem,setEditedItem]= useState(0)
 const [info,setInfo]= useState({
-  temp:"loading",
-  humidity:"loading",
+  temp:"",
+  humidity:"",
   })
 let init;
 //Recebe as variaveis e define elas à localdata
@@ -22,7 +22,7 @@ const receiveLocalData = async () => {
      if (init != null) {
        init = JSON.parse(init);
        setLocalData(init)
-
+       console.log(localData)
 
      } else {
        init = [];
@@ -32,9 +32,9 @@ const receiveLocalData = async () => {
    }
  };
 
- useEffect(()=>{
-     receiveLocalData();
- },[])
+ setTimeout(() => {
+ receiveLocalData();
+}, 1);
  //Consulta a Api e checa o clima
 
 function getWeather(item) {
@@ -48,6 +48,11 @@ function getWeather(item) {
      })
    })
  }
+ const removeItemFromList= (item)=>{
+   let newimagesAddFile = localData;
+   newimagesAddFile.splice(item.id,1); //to remove a single item starting at index
+   setLocalData(newimagesAddFile)
+}
  //Função pra alterar o nome
  function changeName(editedItem){
    const changedData = localData.map( item =>{
@@ -56,6 +61,7 @@ function getWeather(item) {
      }
    })
  }
+
  //Salva para quando o usuario sair continuar os valores
  const saveChangedData = async (localData) => {
     try {
@@ -65,13 +71,11 @@ function getWeather(item) {
         console.log('Erro ao salvar token');
    }
 }
-function deleteData(id){
-  const filteredData = localData.filter(item => item.id !== id)
-  setLocalData(filteredData)
-}
+
   return (
-    <View style={styles.container}>
-      <Text>WeatherApp</Text>
+  <View style={styles.container}>
+    <Text style = {{fontSize:30}}>WeatherApp</Text>
+
       <View style={styles.centeredView}>
         <Modal
           animationType="slide"
@@ -102,7 +106,9 @@ function deleteData(id){
           </View>
         </Modal>
       </View>
+    <ScrollView>
       <FlatList
+        style={styles.lista}
         data ={localData}
         renderItem = {({ item,separators }) => (
         <View style = {styles.button}>
@@ -114,7 +120,7 @@ function deleteData(id){
                 setEditedItem(item.id)
                 }}>Editar</Button>
               <Button mode = 'contained' onPress = {()=> {
-                deleteData(item.id)
+                removeItemFromList(item.id)
                 saveChangedData(localData)
               }}>Excluir</Button>
             </View>
@@ -122,7 +128,8 @@ function deleteData(id){
         </View>
       )}
       />
-      <View style={styles.button}>
+      </ScrollView>
+      <View style={styles.unchangeablebuttons}>
         <Button onPress ={() => {navigation.navigate('Map',{dados:localData})}}> Adicionar Favoritos</Button>
       </View>
 
@@ -156,6 +163,10 @@ const styles = StyleSheet.create({
     height:50,
     width:300
   },
+  lista:{
+    width:400,
+    height:400
+  },
   espaçamento:{
     marginLeft:50
   },
@@ -180,7 +191,9 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
     elevation: 5
   },
-
+  text:{
+    fontSize: 40,
+  },
   button: {
 
     alignItems: 'center',
@@ -188,6 +201,14 @@ const styles = StyleSheet.create({
     marginTop:20,
     marginBottom:10,
     flexDirection: 'row',
+    marginRight:10
+  },
+  unchangeablebuttons: {
+
+    alignItems: 'center',
+    justifyContent:'center',
+    marginTop:20,
+    marginBottom:10,
     marginRight:10
   },
   text: {
