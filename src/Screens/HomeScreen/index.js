@@ -1,19 +1,22 @@
 import React,{useState,useEffect} from "react";
-import { StyleSheet, Text, View, PermissionsAndroid, Button, Platform,FlatList,TouchableHighlight } from "react-native";
+import { StyleSheet, Text, View, PermissionsAndroid, Platform,FlatList,TouchableHighlight,Modal} from "react-native";
 import { NavigationContainer,useNavigation } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import AsyncStorage from '@react-native-community/async-storage'
+import {Button,TextInput} from 'react-native-paper'
 
-function HomeScreen({ navigation,route }) {
+function HomeScreen({ navigation,route:{params} }) {
 const [localData,setLocalData] = useState([])
+const [modalVisibility,setModalVisibility]= useState(false)
+const [editedText,setEditedText]= useState('')
+const [editedItem,setEditedItem]= useState(0)
 const [info,setInfo]= useState({
   temp:"loading",
   humidity:"loading",
   })
-
 let init;
 //Recebe as variaveis e define elas à localdata
-const verify = async () => {
+const receiveLocalData = async () => {
    try {
      init = await AsyncStorage.getItem('@data');
      if (init != null) {
@@ -30,7 +33,7 @@ const verify = async () => {
  };
 
  useEffect(()=>{
-     verify();
+     receiveLocalData();
  },[])
  //Consulta a Api e checa o clima
 
@@ -45,32 +48,89 @@ function getWeather(item) {
      })
    })
  }
-
-
+ //Função pra alterar o nome
+ function changeName(editedItem){
+   const changedData = localData.map( item =>{
+     if(item.id === editedItem){
+       item.id = editedText
+     }
+   })
+ }
+ //Salva para quando o usuario sair continuar os valores
+ const saveChangedData = async (localData) => {
+    try {
+        await AsyncStorage.setItem('@data',JSON.stringify(localData));
+        console.log('Token salvo com sucesso!');
+    } catch (error) {
+        console.log('Erro ao salvar token');
+   }
+}
+function deleteData(id){
+  const filteredData = localData.filter(item => item.id !== id)
+  setLocalData(filteredData)
+}
   return (
     <View style={styles.container}>
-      <Text>Home Screen</Text>
-      <Button title = "Adicionar Favorito" style ={styles.button} onPress ={() => {navigation.navigate('Map',{dados:localData})
-      console.log(localData)}}/>
+      <Text>WeatherApp</Text>
+      <View style={styles.centeredView}>
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={modalVisibility}
+          onRequestClose={() => {
+            Alert.alert("Modal has been closed.");
+          }}
+        >
+          <View style={styles.centeredView}>
+            <View style={styles.modalView}>
+              <TextInput
+                style = {styles.textoEntrada}
+                value={editedText}
+                placeholder = 'Editar nome do local favorito'
+                mode = 'outlined'
+                onChangeText={(event) =>
+                  {setEditedText(event)
+                    console.log(event)
+                  }}
+                  />
+              <Button onPress ={()=>{
+                setModalVisibility(!modalVisibility)
+                changeName(editedItem)
+                saveChangedData(localData)
+              }}>Salvar</Button>
+            </View>
+          </View>
+        </Modal>
+      </View>
       <FlatList
         data ={localData}
         renderItem = {({ item,separators }) => (
-          <TouchableHighlight
-            key={item.id}
-            onPress ={() => getWeather(item)}
-            onShowUnderlay={separators.highlight}
-            onHideUnderlay={separators.unhighlight}>
-            <View  style={{ backgroundColor: 'white' }}>
-              <Text>{item.id}</Text>
+        <View style = {styles.button}>
+          <Button mode = 'contained' onPress ={() => getWeather(item)}>{item.id}</Button>
+          <View style = {styles.espaçamento}>
+             <View>
+              <Button mode = 'contained' onPress={()=>{
+                setModalVisibility(true)
+                setEditedItem(item.id)
+                }}>Editar</Button>
+              <Button mode = 'contained' onPress = {()=> {
+                deleteData(item.id)
+                saveChangedData(localData)
+              }}>Excluir</Button>
             </View>
-          </TouchableHighlight>
+          </View>
+        </View>
       )}
       />
+      <View style={styles.button}>
+        <Button onPress ={() => {navigation.navigate('Map',{dados:localData})}}> Adicionar Favoritos</Button>
+      </View>
+
       <Text>
         Temperatura: {info.temp}
       </Text>
       <Text>
-        Humidade: {info.humidity}
+        Umidade: {info.humidity}
       </Text>
     </View>
   );
@@ -79,29 +139,71 @@ function getWeather(item) {
 const styles = StyleSheet.create({
 
   container: {
-    flex: 1,
     alignItems: 'center',
      justifyContent: 'center'
   },
+  favoritos:{
+    backgroundColor: 'cyan',
+    width: 100,
+    height:30,
+    alignItems: 'center',
+    marginTop:10,
+    borderRadius: 10,
+    justifyContent:'center',
 
-  map: {
-
-    position: 'absolute',
-    top: 200,
-    left: 0,
-    right: 0,
-    bottom: 0,
   },
+  textoEntrada:{
+    height:50,
+    width:300
+  },
+  espaçamento:{
+    marginLeft:50
+  },
+  centeredView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 22
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: "white",
+    borderRadius: 20,
+    padding: 35,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5
+  },
+
   button: {
+
     alignItems: 'center',
     justifyContent:'center',
-    marginTop: 15,
-    right:100,},
+    marginTop:20,
+    marginBottom:10,
+    flexDirection: 'row',
+    marginRight:10
+  },
   text: {
     alignItems: 'center',
     justifyContent:'center',
     marginTop: 15,
     right: 100,},
+    textStyle: {
+   color: "white",
+   fontWeight: "bold",
+   textAlign: "center"
+ },
+ modalText: {
+   marginBottom: 15,
+   textAlign: "center"
+ }
 
 });
 

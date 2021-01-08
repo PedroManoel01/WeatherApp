@@ -1,9 +1,10 @@
 import React, { useState,useEffect } from "react";
-import { StyleSheet, Text,TextInput, View, PermissionsAndroid, Button, Platform } from "react-native";
+import { StyleSheet, Text, View, PermissionsAndroid, Button, Platform } from "react-native";
 import Geolocation from '@react-native-community/geolocation';
 import MapView,{Marker} from 'react-native-maps';
 import {useNavigation} from '@react-navigation/native';
 import AsyncStorage from '@react-native-community/async-storage'
+import {TextInput} from 'react-native-paper'
 
 export default function Map({route :{params}}) {
   const [coordinate, setCoordinate] = useState({
@@ -105,9 +106,11 @@ const setItems = () => {
         <View style={styles.button}>
           <Button title='Obter Localização' onPress={callLocation}/>
         </View>
-        <View style={styles.texto}>
+        <View style={styles.textoEntrada}>
           <TextInput
           value={text}
+          placeholder = 'Digite o nome do local favorito'
+          mode = 'outlined'
           onChangeText={(event) =>
             {setText(event)
             console.log(event)
@@ -143,12 +146,10 @@ const styles = StyleSheet.create({
   button: {
     alignItems: 'center',
     justifyContent:'center',
-    marginTop: 15,
+    marginTop: 20,
     right:100,},
-  text: {
-    alignItems: 'center',
-    justifyContent:'center',
-    marginTop: 15,
-    right: 100,},
+  textoEntrada: {
+
+  }
 
 });
